@@ -1,0 +1,226 @@
+/* SQLEditor (Generic SQL)*/
+
+CREATE TABLE `role_type`
+(
+`id` INTEGER AUTO_INCREMENT  UNIQUE,
+`name` VARCHAR(40),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `login`
+(
+`id` INTEGER AUTO_INCREMENT  UNIQUE,
+`role_type_id` INTEGER,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`date_last_login` DATETIME,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `agency`
+(
+`id` INTEGER AUTO_INCREMENT  UNIQUE,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `court_information`
+(
+`id` INTEGER UNIQUE,
+`information` VARCHAR(1024),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `relationship_type`
+(
+`id` INTEGER NOT NULL AUTO_INCREMENT  UNIQUE,
+`name` VARCHAR(40),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `language`
+(
+`id` INTEGER AUTO_INCREMENT  UNIQUE,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `ethnicity`
+(
+`id` INTEGER NOT NULL AUTO_INCREMENT  UNIQUE,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `person`
+(
+`victim_witness_num` INTEGER AUTO_INCREMENT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`date_of_birth` DATE,
+`social_security_number` INTEGER,
+`phone` VARCHAR(12),
+`email` VARCHAR(255),
+`notes` VARCHAR(255),
+`gender` BOOLEAN,
+`ethnicity_id` INTEGER,
+`age` INTEGER,
+`primary_language_id` INTEGER,
+`disabled` BOOLEAN,
+`elderly` BOOLEAN,
+`agency_referred_id` INTEGER,
+PRIMARY KEY (`victim_witness_num`)
+);
+
+CREATE TABLE `relationship`
+(
+`id` INTEGER AUTO_INCREMENT  UNIQUE,
+`person_id` INTEGER,
+`related_to_person_id` INTEGER,
+`relationship_type_id` INTEGER,
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `address`
+(
+`id` INTEGER NOT NULL AUTO_INCREMENT  UNIQUE,
+`address_1` VARCHAR(255),
+`address_2` VARCHAR(255),
+`address_3` VARCHAR(255),
+`city` VARCHAR(255),
+`state` VARCHAR(255),
+`zipcode` VARCHAR(10),
+`country` VARCHAR(255),
+`person_id` INTEGER,
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `crime_type`
+(
+`id` INTEGER AUTO_INCREMENT  UNIQUE,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `suspect`
+(
+`id` INTEGER AUTO_INCREMENT  UNIQUE,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`date_of_birth` DATE,
+`pfd` INTEGER,
+`information` VARCHAR(1024),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `grant`
+(
+`id` INTEGER AUTO_INCREMENT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `advocate`
+(
+`id` INTEGER AUTO_INCREMENT,
+`login_id` INTEGER,
+`grant_id` INTEGER,
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `service_type`
+(
+`id` INTEGER AUTO_INCREMENT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `services`
+(
+`id` INTEGER AUTO_INCREMENT  UNIQUE,
+`services_type_id` INTEGER,
+`person_id` INTEGER,
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `case_status`
+(
+`id` INTEGER AUTO_INCREMENT  UNIQUE,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `cases`
+(
+`id` INTEGER AUTO_INCREMENT,
+`crime_type_id` INTEGER,
+`crime_date` DATETIME,
+`agency_reported_to_id` INTEGER,
+`crime_report_number` INTEGER,
+`family_law_number` INTEGER,
+`court_id` INTEGER,
+`case_status_id` INTEGER,
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `person_case_assn`
+(
+`id` INTEGER AUTO_INCREMENT,
+`person_id` INTEGER,
+`case_id` INTEGER,
+`advocate_id` INTEGER,
+`primary_person` BOOLEAN,
+PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `case_suspect_assn`
+(
+`id` INTEGER AUTO_INCREMENT  UNIQUE,
+`case_id` INTEGER,
+`suspect_id` INTEGER,
+PRIMARY KEY (`id`)
+);
+
+ALTER TABLE `login` ADD FOREIGN KEY (`role_type_id`) REFERENCES `role_type` (`id`);
+
+ALTER TABLE `person` ADD FOREIGN KEY (`ethnicity_id`) REFERENCES `ethnicity` (`id`);
+
+ALTER TABLE `person` ADD FOREIGN KEY (`primary_language_id`) REFERENCES `language` (`id`);
+
+ALTER TABLE `person` ADD FOREIGN KEY (`agency_referred_id`) REFERENCES `agency` (`id`);
+
+ALTER TABLE `relationship` ADD FOREIGN KEY (`person_id`) REFERENCES `person` (`victim_witness_num`);
+
+ALTER TABLE `relationship` ADD FOREIGN KEY (`related_to_person_id`) REFERENCES `person` (`victim_witness_num`);
+
+ALTER TABLE `relationship` ADD FOREIGN KEY (`relationship_type_id`) REFERENCES `relationship_type` (`id`);
+
+ALTER TABLE `address` ADD FOREIGN KEY (`person_id`) REFERENCES `person` (`victim_witness_num`);
+
+ALTER TABLE `advocate` ADD FOREIGN KEY (`login_id`) REFERENCES `login` (`id`);
+
+ALTER TABLE `advocate` ADD FOREIGN KEY (`grant_id`) REFERENCES `grant` (`id`);
+
+ALTER TABLE `services` ADD FOREIGN KEY (`services_type_id`) REFERENCES `service_type` (`id`);
+
+ALTER TABLE `services` ADD FOREIGN KEY (`person_id`) REFERENCES `person` (`victim_witness_num`);
+
+ALTER TABLE `cases` ADD FOREIGN KEY (`crime_type_id`) REFERENCES `crime_type` (`id`);
+
+ALTER TABLE `cases` ADD FOREIGN KEY (`agency_reported_to_id`) REFERENCES `agency` (`id`);
+
+ALTER TABLE `cases` ADD FOREIGN KEY (`court_id`) REFERENCES `court_information` (`id`);
+
+ALTER TABLE `cases` ADD FOREIGN KEY (`case_status_id`) REFERENCES `case_status` (`id`);
+
+ALTER TABLE `person_case_assn` ADD FOREIGN KEY (`person_id`) REFERENCES `person` (`victim_witness_num`);
+
+ALTER TABLE `person_case_assn` ADD FOREIGN KEY (`case_id`) REFERENCES `cases` (`id`);
+
+ALTER TABLE `person_case_assn` ADD FOREIGN KEY (`advocate_id`) REFERENCES `advocate` (`id`);
+
+ALTER TABLE `case_suspect_assn` ADD FOREIGN KEY (`case_id`) REFERENCES `cases` (`id`);
+
+ALTER TABLE `case_suspect_assn` ADD FOREIGN KEY (`suspect_id`) REFERENCES `suspect` (`id`);
